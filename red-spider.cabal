@@ -18,8 +18,13 @@ extra-source-files:  CHANGELOG.md
 
 executable red-spider
   main-is:             Main.hs
-  -- other-modules:
+  other-modules:
+    Page
   -- other-extensions:
-  build-depends:       base ^>=4.14.0.0
-  hs-source-dirs:      app
+  build-depends:
+    base ^>=4.14.0.0,
+    req, bytestring,
+    text,
+    modern-uri
+  hs-source-dirs:
   default-language:    Haskell2010
