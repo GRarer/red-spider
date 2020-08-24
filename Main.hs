@@ -12,7 +12,7 @@ import Page
 
 main :: IO ()
 main = do
-  res <- get "https://en.wikipedia.org/wiki/Firewatch"
+  res <- get "https://xkcd.com/1/"
   case res of
     Nothing -> putStrLn "Error: malformed URL"
     Just x  -> putStrLn $ show $ getImages $ getTags x
