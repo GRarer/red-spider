@@ -12,7 +12,7 @@ import Page
 
 main :: IO ()
 main = do
-  res <- get "https://en.wikipedia.org/wiki/Firewatch#Plot"
+  res <- get "https://en.wikipedia.org/wiki/Firewatch"
   case res of
     Nothing -> putStrLn "Error: malformed URL"
-    Just x  -> BSC.putStrLn $ responseBody x
+    Just x  -> putStrLn $ show $ getImages $ getTags x
