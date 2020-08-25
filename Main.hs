@@ -9,10 +9,8 @@ import Text.URI
 
 import qualified Data.ByteString.Char8 as BSC
 import Page
+import Download
+import Comic
 
 main :: IO ()
-main = do
-  res <- get "https://xkcd.com/1/"
-  case res of
-    Nothing -> putStrLn "Error: malformed URL"
-    Just x  -> putStrLn $ show $ getImages $ getTags x
+main = visit examplePage
