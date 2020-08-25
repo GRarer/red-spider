@@ -14,17 +14,18 @@ import Comic
 import Fetch
 import Text.HTML.TagSoup (Tag)
 import Text.URI (render)
+import Data.Maybe (listToMaybe)
 
 visit :: ComicPage -> IO ()
 visit page = do
     res <- fetchTags page
     case res of
         Nothing -> putStrLn "failed to fetch result"
-        Just tags  -> downloadPanel page firstImage where
-            firstImage = head $ filter rule allImages where
-                allImages = getImages tags
-                rule = panelSelect page
-
+        Just tags  -> do
+            downloadPage page $ getImages tags
+            case successorPage page $ getLinks tags of
+                Nothing -> putStrLn "reached end of comic"
+                Just next -> visit next
 
 
 fetchTags :: ComicPage -> IO (Maybe [Tag BS.ByteString])
@@ -34,21 +35,33 @@ fetchTags page = do
         Nothing -> pure Nothing
         Just bytesResponse  -> pure $ Just $ getTags bytesResponse
 
+downloadPage :: ComicPage -> [ImageMeta] -> IO ()
+downloadPage page (singlePanel:[]) = downloadPanel page Nothing singlePanel
+downloadPage page images = mapM_ download pairs where
+    download = \(image, number) -> downloadPanel page (Just number) image
+    panels = filter (panelSelect page) images
+    pairs = zip panels [1..]
 
-
-downloadPanel :: ComicPage -> ImageMeta -> IO ()
-downloadPanel page meta = do
-    putStrLn $ "attempting to download image " ++ (show $ imageSrc meta)
-    possibleResponse <- getRelative (pageUrl page) (TextEncoding.decodeUtf8 $ imageSrc meta)
+downloadPanel :: ComicPage -> Maybe Int -> ImageMeta -> IO ()
+downloadPanel page panelNumber imageMeta = do
+    putStrLn $ "attempting to download image " ++ (show $ imageSrc imageMeta) ++ "to file: "
+    putStrLn fileName
+    possibleResponse <- getRelative (pageUrl page) (TextEncoding.decodeUtf8 $ imageSrc imageMeta)
     case possibleResponse of
         Nothing -> putStrLn "Error: failed to fetch image"
         Just imageResponse -> do
             createDirectoryIfMissing True outputDirectory
-            BS.writeFile "example.jpg" $ responseBody imageResponse
+            BS.writeFile fileName $ responseBody imageResponse
+            putStrLn $ "saved " ++ (show $ imageSrc imageMeta) ++ " to " ++ fileName
+    where fileName = imageFileName imageMeta page panelNumber
 
-outputDirectory :: FilePath
-outputDirectory = "/comics-download/"
+outputDirectory :: String
+outputDirectory = "./comics-download/"
 
-imageFileName :: ImageMeta -> Int -> FilePath
-imageFileName meta pageNumber = outputDirectory ++ show pageNumber ++ extension where
-    extension = last $ split '.' $ show $ imageSrc meta
+imageFileName :: ImageMeta -> ComicPage -> Maybe Int -> FilePath
+imageFileName meta page panelNumber = "./comics-download/" ++ name ++ '.':extension where
+    extension = last $ split '.' $ Text.unpack $ TextEncoding.decodeUtf8 $ imageSrc meta
+    prefix = (filePrefix page) ++ (show $ pageNumber page)
+    name = case panelNumber of
+        Nothing -> prefix
+        Just panNum -> prefix ++ ' ':(show panNum)
