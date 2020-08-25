@@ -22,7 +22,7 @@ visit page = do
     case res of
         Nothing -> putStrLn "failed to fetch result"
         Just tags  -> do
-            downloadPage page $ getImages tags
+            downloadPage page $ filter (panelSelect page) $ getImages tags
             case successorPage page $ getLinks tags of
                 Nothing -> putStrLn "reached end of comic"
                 Just next -> visit next
@@ -37,9 +37,8 @@ fetchTags page = do
 
 downloadPage :: ComicPage -> [ImageMeta] -> IO ()
 downloadPage page (singlePanel:[]) = downloadPanel page Nothing singlePanel
-downloadPage page images = mapM_ download pairs where
+downloadPage page panels = mapM_ download pairs where
     download = \(image, number) -> downloadPanel page (Just number) image
-    panels = filter (panelSelect page) images
     pairs = zip panels [1..]
 
 downloadPanel :: ComicPage -> Maybe Int -> ImageMeta -> IO ()
