@@ -2,7 +2,7 @@
 
 module Main where
 
-import Text.URI
+import Text.URI (render)
 import Download
 import Comic
 import Page
@@ -12,8 +12,10 @@ import qualified Data.Text.Encoding as TextEncoding
 import Text.HTML.TagSoup (parseTags)
 import Network.HTTP.Req (responseBody)
 
+import ExampleComics
+
 main :: IO ()
-main = visit examplePage
+main = visit oHumanStar
 
 
 visit :: ComicPage -> IO ()
@@ -29,12 +31,3 @@ visit page = do
             where
                 tags = parseTags $ TextEncoding.decodeUtf8 $ responseBody htmlBytes
 
-
-examplePage :: ComicPage
-examplePage = ComicPage {
-    pageNumber = 1,
-    filePrefix = "xkcd ",
-    panelSelect = panelUrlRule "/comics/",
-    nextSelect = linkRelRule,
-    pageUrl = xkcdStartUri
-} where (Just xkcdStartUri) = mkURI "https://xkcd.com/2330/"

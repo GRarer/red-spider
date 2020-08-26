@@ -24,15 +24,12 @@ downloadPage page panels = mapM_ download pairs where
 
 downloadPanel :: ComicPage -> Maybe Int -> ImageMeta -> IO ()
 downloadPanel page panelNumber imageMeta = do
-    putStrLn $ "attempting to download image " ++ (show $ imageSrc imageMeta) ++ "to file: "
-    putStrLn fileName
     possibleResponse <- getRelative (pageUrl page) (imageSrc imageMeta)
     case possibleResponse of
         Nothing -> putStrLn "Error: failed to fetch image"
         Just imageResponse -> do
             createDirectoryIfMissing True outputDirectory
             BS.writeFile fileName $ responseBody imageResponse
-            putStrLn $ "saved " ++ (show $ imageSrc imageMeta) ++ " to " ++ fileName
     where fileName = imageFileName imageMeta page panelNumber
 
 outputDirectory :: String
