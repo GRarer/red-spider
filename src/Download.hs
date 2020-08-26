@@ -1,6 +1,6 @@
 {-# language OverloadedStrings #-}
 
-module Download where
+module Download (downloadPage) where
 
 import Page
 
@@ -15,19 +15,6 @@ import Fetch
 import Text.HTML.TagSoup (parseTags, Tag)
 import Text.URI (render)
 import Data.Maybe (listToMaybe)
-
-visit :: ComicPage -> IO ()
-visit page = do
-    res <- get (render $ pageUrl page)
-    case res of
-        Nothing -> putStrLn "failed to fetch result"
-        Just htmlBytes  -> do
-            downloadPage page $ filter (panelSelect page) $ getImages tags
-            case successorPage page $ getLinks tags of
-                Nothing -> putStrLn "reached end of comic"
-                Just next -> visit next
-            where
-                tags = parseTags $ TextEncoding.decodeUtf8 $ responseBody htmlBytes
 
 downloadPage :: ComicPage -> [ImageMeta] -> IO ()
 downloadPage page (singlePanel:[]) = downloadPanel page Nothing singlePanel

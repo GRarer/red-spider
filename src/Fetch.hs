@@ -19,6 +19,14 @@ get url = runReq httpCfg $ do
     getBS (uri, schema) = req GET uri NoReqBody (Proxy :: Proxy BsResponse) schema
     httpCfg = defaultHttpConfig
 
+
+getRelative :: URI -> Text -> IO (Maybe BsResponse)
+getRelative sourcePage url = case correctedUri of
+  Nothing -> pure Nothing
+  Just uri -> get $ render uri
+  where correctedUri = correctUrl (Just sourcePage) url
+
+
 correctUrl :: Maybe URI -> Text.Text -> Maybe URI
 correctUrl sourcePage url = do
     uri <- mkURI url
@@ -30,11 +38,4 @@ correctUrl sourcePage url = do
     pure uri'
   where
     httpsScheme = fromJust $ mkScheme "https"
-
-
-getRelative :: URI -> Text -> IO (Maybe BsResponse)
-getRelative sourcePage url = case correctedUri of
-  Nothing -> pure Nothing
-  Just uri -> get $ render uri
-  where correctedUri = correctUrl (Just sourcePage) url
 

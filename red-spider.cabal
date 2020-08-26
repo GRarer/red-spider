@@ -22,7 +22,8 @@ executable red-spider
     Page,
     Download,
     Comic,
-    Fetch
+    Fetch,
+    ParseRules
   -- other-extensions:
   build-depends:
     base ^>=4.14.0.0,
