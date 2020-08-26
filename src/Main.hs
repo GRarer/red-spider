@@ -2,7 +2,7 @@
 
 module Main where
 
-import Text.URI (render)
+import Text.URI (renderStr, render)
 import Download
 import Comic
 import Page
@@ -13,21 +13,27 @@ import Text.HTML.TagSoup (parseTags)
 import Network.HTTP.Req (responseBody)
 
 import ExampleComics
+import Data.Text (Text)
+
 
 main :: IO ()
-main = visit oHumanStar
+main = visit "" xkcd
 
 
-visit :: ComicPage -> IO ()
-visit page = do
+visit :: Text -> ComicPage -> IO ()
+visit previousHTML page = do
+    putStrLn $ renderStr $ pageUrl page
     res <- get (render $ pageUrl page)
     case res of
         Nothing -> putStrLn "failed to fetch result"
-        Just htmlBytes  -> do
-            downloadPage page $ filter (panelSelect page) $ getImages tags
-            case successorPage page $ getLinks tags of
-                Nothing -> putStrLn "reached end of comic"
-                Just next -> visit next
+        Just htmlBytes  -> if html == previousHTML
+            then putStrLn "duplicate page found"
+            else do
+                downloadPage page $ filter (panelSelect page) $ getImages tags
+                case successorPage page $ getLinks tags of
+                    Nothing -> putStrLn "reached end of comic"
+                    Just next -> visit html next
             where
-                tags = parseTags $ TextEncoding.decodeUtf8 $ responseBody htmlBytes
+                html = TextEncoding.decodeUtf8 $ responseBody htmlBytes
+                tags = parseTags html
 

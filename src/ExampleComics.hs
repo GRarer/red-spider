@@ -13,7 +13,7 @@ xkcd = ComicPage {
     panelSelect = panelUrlRule "/comics/",
     nextSelect = linkRelRule,
     pageUrl = xkcdStartUri
-} where (Just xkcdStartUri) = mkURI "https://xkcd.com/1/"
+} where (Just xkcdStartUri) = mkURI "https://xkcd.com/2347/"
 
 
 oHumanStar :: ComicPage
