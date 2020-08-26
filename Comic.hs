@@ -3,13 +3,10 @@
 module Comic where
 
 import Page
-import Data.Text (Text)
-import qualified Data.ByteString as BS
+import Data.Text (isInfixOf, Text)
 import Text.URI (mkURI, URI)
 import Data.Maybe (listToMaybe)
-import Fetch
-import Data.Text.Encoding (decodeUtf8)
-import qualified Data.Text.Encoding as TextEncoding
+import Fetch (correctUrl)
 
 data ComicPage = ComicPage {
     panelSelect :: ImageMeta -> Bool,
@@ -22,7 +19,7 @@ data ComicPage = ComicPage {
 successorPage :: ComicPage -> [LinkMeta] -> Maybe ComicPage
 successorPage cur links = do
     nextLink <- listToMaybe $ filter (nextSelect cur) $ filter (\l -> isNonCircular $ linkToUrl l) links
-    nextUrl <- correctUrl (Just $ pageUrl cur) (decodeUtf8 $ linkHref nextLink)
+    nextUrl <- correctUrl (Just $ pageUrl cur) (linkHref nextLink)
     pure ComicPage {
         pageUrl=nextUrl,
         pageNumber= 1 + pageNumber cur,
@@ -31,12 +28,12 @@ successorPage cur links = do
         filePrefix = filePrefix cur
     }
     where
-        linkToUrl link = correctUrl (Just $ pageUrl cur) (TextEncoding.decodeUtf8 $ linkHref link)
+        linkToUrl link = correctUrl (Just $ pageUrl cur) (linkHref link)
         isNonCircular Nothing = False
         isNonCircular (Just uri) = uri /= (pageUrl cur)
 
-panelUrlRule :: BS.ByteString -> ImageMeta -> Bool
-panelUrlRule substring image = BS.isInfixOf substring $ imageSrc image
+panelUrlRule :: Text -> ImageMeta -> Bool
+panelUrlRule substring image = isInfixOf substring $ imageSrc image
 
 linkRelRule :: LinkMeta -> Bool
 linkRelRule link = isNext $ linkRel link where
