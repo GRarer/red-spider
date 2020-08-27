@@ -1,6 +1,6 @@
 {-# language OverloadedStrings #-}
 
-module ParseRules where
+module PageParseRules where
 
 import Data.Text (Text, isInfixOf)
 import Page

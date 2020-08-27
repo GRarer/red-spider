@@ -7,17 +7,18 @@ import Download
 import Comic
 import Page
 import Fetch
-import ParseRules
+import PageParseRules
 import qualified Data.Text.Encoding as TextEncoding
 import Text.HTML.TagSoup (parseTags)
 import Network.HTTP.Req (responseBody)
-
-import ExampleComics
 import Data.Text (Text)
+import Options
 
 
 main :: IO ()
-main = visit "" xkcd
+main = do
+    firstPage <- parseOptions
+    putStrLn $ show $ firstPage
 
 
 visit :: Text -> ComicPage -> IO ()

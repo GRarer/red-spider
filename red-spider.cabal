@@ -23,8 +23,8 @@ executable red-spider
     Download,
     Comic,
     Fetch,
-    ParseRules,
-    ExampleComics
+    PageParseRules,
+    Options
   -- other-extensions:
   build-depends:
     base ^>=4.14.0.0,
@@ -33,6 +33,7 @@ executable red-spider
     tagsoup,
     modern-uri,
     directory,
-    ghc
+    ghc,
+    optparse-applicative,
   hs-source-dirs: src
   default-language:    Haskell2010
