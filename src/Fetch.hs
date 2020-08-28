@@ -10,9 +10,9 @@ import Control.Monad (guard)
 import Data.Maybe (fromJust, fromMaybe)
 import Data.Text
 
-get :: Text.Text -> IO (Maybe BsResponse)
+get :: URI -> IO (Maybe BsResponse)
 get url = runReq httpCfg $ do
-  case useURI =<< (mkURI url) of
+  case (useURI url) of
     Nothing  -> pure Nothing
     Just uri -> Just <$> either getBS getBS uri
   where
@@ -23,7 +23,7 @@ get url = runReq httpCfg $ do
 getRelative :: URI -> Text -> IO (Maybe BsResponse)
 getRelative sourcePage url = case correctedUri of
   Nothing -> pure Nothing
-  Just uri -> get $ render uri
+  Just uri -> get uri
   where correctedUri = correctUrl (Just sourcePage) url
 
 

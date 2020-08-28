@@ -5,20 +5,32 @@ module Options where
 import Options.Applicative
 import Data.Semigroup ((<>))
 import Data.Foldable (asum)
-import Text.URI (mkURI, URI)
+import Text.URI (isPathAbsolute, mkScheme, makeAbsolute, mkURI, URI)
 import Data.Text (pack)
 import Comic
 import PageParseRules
+import Fetch(correctUrl)
+import Data.Maybe (fromJust)
+import Data.List (isInfixOf)
+import Control.Monad (guard)
 
-
-uriReader :: ReadM URI
-uriReader = eitherReader $ (\input -> case (mkURI $ pack input) of
-    Nothing -> Left "Invalid URL"
-    Just uri' -> Right uri')
+urlReader :: ReadM URI
+urlReader = eitherReader $ parseUri where
+    parseUri input = case (uri) of
+        Nothing -> Left "Invalid URL"
+        Just uri' -> Right uri'
+        where
+            httpsScheme = fromJust $ mkScheme "https"
+            parseAbsoluteUrl urlString = do
+                uri <- mkURI $ pack urlString
+                uriAbsolute <- Just $ makeAbsolute httpsScheme uri
+                guard (isPathAbsolute uriAbsolute)
+                Just uriAbsolute
+            uri = parseAbsoluteUrl input <|> parseAbsoluteUrl ("//" ++ input)
 
 parser :: Parser ComicPage
 parser = ComicPage
-    <$> option uriReader
+    <$> option urlReader
     ( long "url"
     <> metavar "URL"
     <> help "URL of first page")
