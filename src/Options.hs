@@ -77,7 +77,7 @@ parseOptions = execParser opts
   where
     opts = info (parser <**> helper)
       ( fullDesc
-     <> progDesc "do some stuff with some params"
-     <> header "hello - a test for optparse-applicative" )
+     <> header "red-spider, a tool for downloading webcomics"
+     <> progDesc "Red Spider reads through a webcomic and downloads images from each page")
 
 

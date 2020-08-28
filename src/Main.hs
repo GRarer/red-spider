@@ -18,8 +18,6 @@ import Options
 main :: IO ()
 main = do
     firstPage <- parseOptions
-    putStrLn "starting from url:"
-    putStrLn $ show $ pageUrl firstPage
     visit "" firstPage
 
 visit :: Text -> ComicPage -> IO ()
@@ -27,7 +25,7 @@ visit previousHTML page = do
     putStrLn $ renderStr $ pageUrl page
     res <- get $ pageUrl page
     case res of
-        Nothing -> putStrLn "failed to fetch result"
+        Nothing -> putStrLn $ "failed to fetch page"
         Just htmlBytes  -> if html == previousHTML
             then putStrLn "duplicate page found"
             else do
