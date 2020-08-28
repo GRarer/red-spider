@@ -1,3 +1,5 @@
+{-# language OverloadedStrings #-}
+
 module Options where
 
 import Options.Applicative
@@ -5,25 +7,17 @@ import Data.Semigroup ((<>))
 import Data.Foldable (asum)
 import Text.URI (mkURI, URI)
 import Data.Text (pack)
+import Comic
+import PageParseRules
 
-data PanelSelectMode = PanelModeSrc String | PanelModeAlt String deriving Show
-data LinkSelectMode = LinkModeRel | LinkModeInnerText String deriving Show
-
-data Options = Options {
-    firstUrl :: URI,
-    prefix :: String,
-    initialNumber :: Int,
-    panelSelectMode :: PanelSelectMode,
-    linkSelectMode :: LinkSelectMode
-} deriving Show
 
 uriReader :: ReadM URI
 uriReader = eitherReader $ (\input -> case (mkURI $ pack input) of
     Nothing -> Left "Invalid URL"
     Just uri' -> Right uri')
 
-parser :: Parser Options
-parser = Options
+parser :: Parser ComicPage
+parser = ComicPage
     <$> option uriReader
     ( long "url"
     <> metavar "URL"
@@ -43,30 +37,30 @@ parser = Options
         <> metavar "N" )
     <*> asum
         [
-            (PanelModeSrc <$> strOption (
+            (panelUrlRule <$> strOption (
                 long "panelSrc"
                 <> metavar "SUBSTRING"
                 <> help "Select panel images that have a specific substring in their `src` url"
                 )),
-            (PanelModeAlt <$> strOption (
+            (panelAltRule <$> strOption (
                 long "panelAlt"
                 <> metavar "SUBSTRING"
                 <> help "Select panel images that have a specific substring in their `alt` attribute"
                 )),
-            pure $ PanelModeSrc "/comics/"
+            pure $ panelUrlRule "/comics/"
         ]
     <*> asum
         [
-            (LinkModeInnerText <$> strOption (
+            (linkInnerTextRule <$> strOption (
                 long "linkText"
                 <> metavar "SUBSTRING"
                 <> help ("Locate link to next page by looking for a substring within the link's inner text" ++
                     " (overrides default behavior of identifying links based on their `rel` attribute)")
                 )),
-            pure $ LinkModeRel
+            pure $ linkRelRule
         ]
 
-parseOptions :: IO Options
+parseOptions :: IO ComicPage
 parseOptions = execParser opts
   where
     opts = info (parser <**> helper)

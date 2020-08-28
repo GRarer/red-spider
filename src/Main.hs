@@ -18,8 +18,7 @@ import Options
 main :: IO ()
 main = do
     firstPage <- parseOptions
-    putStrLn $ show $ firstPage
-
+    visit "" firstPage
 
 visit :: Text -> ComicPage -> IO ()
 visit previousHTML page = do

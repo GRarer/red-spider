@@ -9,11 +9,12 @@ import Data.Maybe (listToMaybe)
 import Fetch (correctUrl)
 
 data ComicPage = ComicPage {
-    panelSelect :: ImageMeta -> Bool,
-    nextSelect :: LinkMeta -> Bool,
-    filePrefix :: String,
     pageUrl :: URI,
-    pageNumber :: Int
+    filePrefix :: String,
+    pageNumber :: Int,
+    panelSelect :: ImageMeta -> Bool,
+    nextSelect :: LinkMeta -> Bool
+
 }
 
 successorPage :: ComicPage -> [LinkMeta] -> Maybe ComicPage
