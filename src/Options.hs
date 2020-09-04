@@ -1,14 +1,13 @@
 {-# language OverloadedStrings #-}
 
-module Options where
+module Options (parseOptions) where
 
 import Options.Applicative
 import Data.Semigroup ((<>))
 import Data.Foldable (asum)
 import Text.URI (isPathAbsolute, mkScheme, makeAbsolute, mkURI, URI)
 import Data.Text (pack)
-import Comic
-import PageParseRules
+import Page
 import Fetch(correctUrl)
 import Data.Maybe (fromJust)
 import Data.List (isInfixOf)

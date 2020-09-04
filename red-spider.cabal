@@ -21,9 +21,7 @@ executable red-spider
   other-modules:
     Page,
     Download,
-    Comic,
     Fetch,
-    PageParseRules,
     Options
   -- other-extensions:
   build-depends:

@@ -3,15 +3,13 @@
 module Download (downloadPage) where
 
 import Page
-
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as TextEncoding
 import qualified Data.ByteString as BS
 import Network.HTTP.Req (responseBody)
-import System.Directory
+import System.Directory ( createDirectoryIfMissing )
 import Util (split)
-import Comic
-import Fetch
+import Fetch ( getRelative )
 import Text.HTML.TagSoup (parseTags, Tag)
 import Text.URI (render)
 import Data.Maybe (listToMaybe)

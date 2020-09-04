@@ -8,7 +8,7 @@ import Network.HTTP.Req
 import Text.URI
 import Control.Monad (guard)
 import Data.Maybe (fromJust, fromMaybe)
-import Data.Text
+import Data.Text ( Text )
 
 get :: URI -> IO (Maybe BsResponse)
 get url = runReq httpCfg $ do

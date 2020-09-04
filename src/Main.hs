@@ -4,24 +4,22 @@ module Main where
 
 import Text.URI (renderStr, render)
 import Download
-import Comic
 import Page
-import Fetch
-import PageParseRules
+import Fetch ( get )
 import qualified Data.Text.Encoding as TextEncoding
 import Text.HTML.TagSoup (parseTags)
 import Network.HTTP.Req (responseBody)
 import Data.Text (Text)
-import Options
+import Options ( parseOptions )
 
 
 main :: IO ()
 main = do
     firstPage <- parseOptions
-    visit "" firstPage
+    visit firstPage ""
 
-visit :: Text -> ComicPage -> IO ()
-visit previousHTML page = do
+visit :: ComicPage -> Text -> IO ()
+visit page previousHTML = do
     putStrLn $ renderStr $ pageUrl page
     res <- get $ pageUrl page
     case res of
@@ -32,8 +30,7 @@ visit previousHTML page = do
                 downloadPage page $ filter (panelSelect page) $ getImages tags
                 case successorPage page $ getLinks tags of
                     Nothing -> putStrLn "reached end of comic"
-                    Just next -> visit html next
+                    Just next -> visit next html
             where
                 html = TextEncoding.decodeUtf8 $ responseBody htmlBytes
                 tags = parseTags html
-
