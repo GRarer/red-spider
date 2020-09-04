@@ -1,5 +1,5 @@
 # Revision history for red-spider
 
-## 0.0.0.1 -- YYYY-mm-dd
+## 0.1.0.0 -- 2020-09-04
 
-* First version. Released on an unsuspecting world.
+* Initial version
