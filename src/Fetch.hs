@@ -1,31 +1,27 @@
 {-# language OverloadedStrings #-}
+{-# language TypeApplications #-}
 
 module Fetch where
 
-import Data.Proxy
+import Data.Proxy (Proxy(..))
 import qualified Data.Text as Text
 import Network.HTTP.Req
 import Text.URI
-import Control.Monad (guard)
+import Control.Monad (guard, join)
 import Data.Maybe (fromJust, fromMaybe)
-import Data.Text ( Text )
+import Data.Traversable (for, traverse)
+import Data.Text (Text)
+
+httpCfg :: HttpConfig
+httpCfg = defaultHttpConfig
 
 get :: URI -> IO (Maybe BsResponse)
-get url = runReq httpCfg $ do
-  case (useURI url) of
-    Nothing  -> pure Nothing
-    Just uri -> Just <$> either getBS getBS uri
+get url = for (useURI url) $ runReq httpCfg . either getBS getBS
   where
-    getBS (uri, schema) = req GET uri NoReqBody (Proxy :: Proxy BsResponse) schema
-    httpCfg = defaultHttpConfig
-
+    getBS (uri, schema) = req GET uri NoReqBody (Proxy @BsResponse) schema
 
 getRelative :: URI -> Text -> IO (Maybe BsResponse)
-getRelative sourcePage url = case correctedUri of
-  Nothing -> pure Nothing
-  Just uri -> get uri
-  where correctedUri = correctUrl (Just sourcePage) url
-
+getRelative sourcePage url = fmap join $ traverse get $ correctUrl (Just sourcePage) url
 
 correctUrl :: Maybe URI -> Text.Text -> Maybe URI
 correctUrl sourcePage url = do

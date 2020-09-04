@@ -24,13 +24,15 @@ visit page previousHTML = do
     res <- get $ pageUrl page
     case res of
         Nothing -> putStrLn $ "failed to fetch page"
-        Just htmlBytes  -> if html == previousHTML
-            then putStrLn "duplicate page found"
-            else do
-                downloadPage page $ filter (panelSelect page) $ getImages tags
-                case successorPage page $ getLinks tags of
-                    Nothing -> putStrLn "reached end of comic"
-                    Just next -> visit next html
-            where
+        Just htmlBytes ->
+            let
                 html = TextEncoding.decodeUtf8 $ responseBody htmlBytes
                 tags = parseTags html
+            in if html == previousHTML
+                then putStrLn "duplicate page found"
+                else do
+                    downloadPage page $ filter (panelSelect page) $ getImages tags
+                    case successorPage page $ getLinks tags of
+                        Nothing -> putStrLn "reached end of comic"
+                        Just next -> visit next html
+
