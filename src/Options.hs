@@ -68,6 +68,11 @@ parser = ComicPage
             ]),
             pure linkRelRule
         ]
+    <*> switch (mconcat [
+            long "saveTitleText",
+            short 't',
+            help "Save title-text for each panel as text files"
+        ])
 
 parseOptions :: IO ComicPage
 parseOptions = execParser opts

@@ -33,7 +33,7 @@ red-spider --url "ohumanstar.com/comic/chapter-1-title-page/" --panelAlt "Chapte
 ```
 red-spider --url URL [-p|--prefix PREFIX] [-n|--number N] [--panelSrc SUBSTRING | --panelAlt SUBSTRING] [--linkText SUBSTRING]
 ```
-                  
+
 - `--url URL`:               URL of first page
 
 - `-p,--prefix PREFIX`:       Prefix label for output file names
@@ -41,9 +41,11 @@ red-spider --url URL [-p|--prefix PREFIX] [-n|--number N] [--panelSrc SUBSTRING 
 - `-n,--number N`:            Number to label the first page (default: 1)
 
 - `--panelSrc SUBSTRING`:     Select panel images that have a specific substring in their `src` url (default behavior is to select images with '\comics\' in their url
-                         
+
 - `--panelAlt SUBSTRING`:     Select panel images that have a specific substring in their `alt` attribute
-                         
+
 - `--linkText SUBSTRING`:     Locate link to next page by looking for a substring within the link's inner text (overrides default behavior of identifying links based on their `rel` attribute)
-                         
+
+- `-t,--saveTitleText`:       Save title-text for each panel as text files
+
 - `-h,--help`:                Show help text

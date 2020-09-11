@@ -4,26 +4,30 @@
 module Download (downloadPage) where
 
 import Page
+import Fetch ( getRelative )
+
+import Control.Applicative((<|>))
+import Data.Semigroup (Last(..))
+
 import qualified Data.Text as Text
-import qualified Data.Text.Encoding as TextEncoding
+import qualified Data.Text.IO as Text
 import qualified Data.ByteString as BS
 import Network.HTTP.Req (responseBody)
 import System.Directory ( createDirectoryIfMissing )
-import Fetch ( getRelative )
 import Text.HTML.TagSoup (parseTags, Tag)
 import Text.URI (render, mkURI)
-import Data.Maybe (fromJust, listToMaybe)
+import Data.Maybe (listToMaybe, fromMaybe)
 import Data.Foldable (traverse_)
 import System.FilePath ((<.>), (</>))
-import Safe (lastMay)
 import Codec.ImageType (getImageType)
-import Control.Applicative((<|>))
+import Control.Monad (when)
 
 downloadPage :: ComicPage -> [ImageMeta] -> IO ()
 downloadPage page [singlePanel] = downloadPanel page Nothing singlePanel
-downloadPage page panels = traverse_ download pairs where
-    download (image, number) = downloadPanel page (Just number) image
-    pairs = zip panels [1..]
+downloadPage page panels = traverse_ download pairs
+    where
+        download (image, number) = downloadPanel page (Just number) image
+        pairs = zip panels [1..]
 
 downloadPanel :: ComicPage -> Maybe Int -> ImageMeta -> IO ()
 downloadPanel page panelNumber imageMeta = do
@@ -33,19 +37,29 @@ downloadPanel page panelNumber imageMeta = do
         Just imageResponse -> do
             createDirectoryIfMissing True outputDirectory
             let contents = responseBody imageResponse
-            let fileName = imageFileName imageMeta contents page panelNumber
-            BS.writeFile fileName $ responseBody imageResponse
+            let imagePath = getImageFilePath page panelNumber imageMeta contents
+            BS.writeFile imagePath $ responseBody imageResponse
+            when (saveTitleText page) $ do
+                let path = getFileName page panelNumber <.> "txt"
+                traverse_ (Text.writeFile path) $ imageTitleText imageMeta
 
 outputDirectory :: FilePath
 outputDirectory = "comics-download"
 
-imageFileName :: ImageMeta -> BS.ByteString -> ComicPage -> Maybe Int -> FilePath
-imageFileName metadata fileContents page panelNumber = outputDirectory </> name <.> extension
+lastMaybe :: Foldable f => f a -> Maybe a
+lastMaybe = fmap getLast . foldMap (Just . Last)
+
+getImageFilePath :: ComicPage -> Maybe Int -> ImageMeta -> BS.ByteString -> FilePath
+getImageFilePath page panelNumber imageMetadata imageContents =
+    let
+        -- getting the extension from the end of the URL is a fallback for when getImageType can't identify the format
+        extensionFromUrl = fmap Text.unpack $ lastMaybe $ Text.splitOn "/" $ imageSrc imageMetadata
+        extension = fromMaybe "UNKNOWN" $ getImageType imageContents <|> extensionFromUrl
+    in getFileName page panelNumber <.> extension
+
+getFileName :: ComicPage -> Maybe Int -> FilePath
+getFileName page panelNumber = outputDirectory </> name
     where
         name = case panelNumber of
             Nothing -> filePrefix page ++ show (pageNumber page)
-            Just panelNumber' -> filePrefix page ++ show (pageNumber page) ++ "_" ++ (show panelNumber')
-        extensionFromUrl url = do
-            end <- lastMay $ Text.splitOn "/" url
-            fmap Text.unpack $ lastMay $ Text.splitOn "." url
-        extension = fromJust $ getImageType fileContents <|> (extensionFromUrl $ imageSrc metadata) <|> Just "UNKNOWN"
+            Just panelNumber' -> filePrefix page ++ show (pageNumber page) ++ "_" ++ show panelNumber'
