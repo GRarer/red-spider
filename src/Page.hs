@@ -44,6 +44,7 @@ getLinks tags = concatMap tagLinks $ tagTree tags
 
 data ComicPage = ComicPage {
     pageUrl :: URI,
+    outputDirectory:: FilePath,
     filePrefix :: String,
     pageNumber :: Int,
     -- | All images matching this predicate will be downloaded

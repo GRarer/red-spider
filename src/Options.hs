@@ -33,6 +33,14 @@ parser = ComicPage
             help "URL of first page"
         ])
     <*> strOption (mconcat [
+            long "output",
+            short 'o',
+            metavar "OUTPUT_DIRECTORY",
+            help "Directory name where output files will be saved",
+            value "comics-output",
+            showDefault
+        ])
+    <*> strOption (mconcat [
             long "prefix",
             short 'p',
             metavar "PREFIX",

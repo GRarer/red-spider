@@ -35,16 +35,13 @@ downloadPanel page panelNumber imageMeta = do
     case possibleResponse of
         Nothing -> putStrLn "Error: failed to fetch image"
         Just imageResponse -> do
-            createDirectoryIfMissing True outputDirectory
+            createDirectoryIfMissing True (outputDirectory page)
             let contents = responseBody imageResponse
             let imagePath = getImageFilePath page panelNumber imageMeta contents
             BS.writeFile imagePath $ responseBody imageResponse
             when (saveTitleText page) $ do
                 let path = getFileName page panelNumber <.> "txt"
                 traverse_ (Text.writeFile path) $ imageTitleText imageMeta
-
-outputDirectory :: FilePath
-outputDirectory = "comics-download"
 
 lastMaybe :: Foldable f => f a -> Maybe a
 lastMaybe = fmap getLast . foldMap (Just . Last)
@@ -58,7 +55,7 @@ getImageFilePath page panelNumber imageMetadata imageContents =
     in getFileName page panelNumber <.> extension
 
 getFileName :: ComicPage -> Maybe Int -> FilePath
-getFileName page panelNumber = outputDirectory </> name
+getFileName page panelNumber = outputDirectory page </> name
     where
         name = case panelNumber of
             Nothing -> filePrefix page ++ show (pageNumber page)
