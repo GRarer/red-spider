@@ -11,6 +11,7 @@ import Text.HTML.TagSoup (parseTags)
 import Network.HTTP.Req (responseBody)
 import Data.Text (Text)
 import Options ( parseOptions )
+import Data.Text.Encoding.Error (lenientDecode)
 
 
 main :: IO ()
@@ -26,7 +27,7 @@ visit page previousHTML = do
         Nothing -> putStrLn $ "failed to fetch page"
         Just htmlBytes ->
             let
-                html = TextEncoding.decodeUtf8 $ responseBody htmlBytes
+                html = TextEncoding.decodeUtf8With lenientDecode $ responseBody htmlBytes
                 tags = parseTags html
             in if html == previousHTML
                 then putStrLn "duplicate page found"
