@@ -1,5 +1,5 @@
 # red-spider
-Red Spider is a command-line tool that downloads webcomics for offline vieweing and archiving.
+Red Spider is a command-line tool that downloads webcomics for offline viewing and archiving.
 
 <img src="https://imgs.xkcd.com/comics/red_spiders_small.jpg" width="300">
 
