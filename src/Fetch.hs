@@ -12,11 +12,8 @@ import Data.Maybe (fromJust, fromMaybe)
 import Data.Traversable (for, traverse)
 import Data.Text (Text)
 
-httpCfg :: HttpConfig
-httpCfg = defaultHttpConfig
-
 get :: URI -> IO (Maybe BsResponse)
-get url = for (useURI url) $ runReq httpCfg . either getBS getBS
+get url = for (useURI url) $ runReq defaultHttpConfig . either getBS getBS
   where
     getBS (uri, schema) = req GET uri NoReqBody (Proxy @BsResponse) schema
 

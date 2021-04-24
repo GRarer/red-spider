@@ -24,7 +24,7 @@ visit page previousHTML = do
     putStrLn $ renderStr $ pageUrl page
     res <- get $ pageUrl page
     case res of
-        Nothing -> putStrLn $ "failed to fetch page"
+        Nothing -> putStrLn "failed to fetch page"
         Just htmlBytes ->
             let
                 html = TextEncoding.decodeUtf8With lenientDecode $ responseBody htmlBytes

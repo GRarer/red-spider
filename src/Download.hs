@@ -24,10 +24,10 @@ import Control.Monad (when)
 
 downloadPage :: ComicPage -> [ImageMeta] -> IO ()
 downloadPage page [singlePanel] = downloadPanel page Nothing singlePanel
-downloadPage page panels = traverse_ download pairs
+downloadPage page panels = traverse_ downloadNumberedPanel numberedPanels
     where
-        download (image, number) = downloadPanel page (Just number) image
-        pairs = zip panels [1..]
+        numberedPanels = zip panels [1..]
+        downloadNumberedPanel (image, number) = downloadPanel page (Just number) image
 
 downloadPanel :: ComicPage -> Maybe Int -> ImageMeta -> IO ()
 downloadPanel page panelNumber imageMeta = do

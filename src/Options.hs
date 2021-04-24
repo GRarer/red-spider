@@ -8,7 +8,6 @@ import Data.Foldable (asum)
 import Text.URI (isPathAbsolute, mkScheme, makeAbsolute, mkURI, URI)
 import Data.Text (pack)
 import Page
-import Fetch(correctUrl)
 import Data.Maybe (fromJust)
 import Data.List (isInfixOf)
 import Control.Monad (guard)

@@ -8,7 +8,7 @@ import Text.HTML.TagSoup.Tree
 import Text.StringLike (StringLike)
 import Data.Text (isInfixOf, Text)
 import Text.URI (mkURI, URI)
-import Data.Maybe (listToMaybe)
+import Data.List(find)
 import Fetch (correctUrl)
 
 data ImageMeta = ImageMeta {
@@ -18,7 +18,7 @@ data ImageMeta = ImageMeta {
 } deriving Show
 
 getImages :: [Tag Text] -> [ImageMeta]
-getImages tags = mapMaybe tagImage tags
+getImages = mapMaybe tagImage
   where
     tagImage (TagOpen "img" attributes) = do
       src <- lookup "src" attributes
@@ -34,7 +34,7 @@ data LinkMeta= LinkMeta {
 getLinks :: [Tag Text] -> [LinkMeta]
 getLinks tags = concatMap tagLinks $ tagTree tags
   where
-    tagLinks branch@(TagBranch _ _ children) = maybeToList (tagLink branch) ++ (concatMap tagLinks children)
+    tagLinks branch@(TagBranch _ _ children) = maybeToList (tagLink branch) ++ concatMap tagLinks children
       where
         tagLink (TagBranch "a" attributes children) = do
           href <- lookup "href" attributes
@@ -55,17 +55,17 @@ data ComicPage = ComicPage {
 }
 
 successorPage :: ComicPage -> [LinkMeta] -> Maybe ComicPage
-successorPage cur links = do
-    nextLink <- listToMaybe $ filter (nextSelect cur) $ filter (isNonCircular . linkToUrl) links
-    nextUrl <- correctUrl (Just $ pageUrl cur) (linkHref nextLink)
-    pure cur {
+successorPage currentPage links = do
+    nextLink <- find (nextSelect currentPage) (filter (isNonCircular . linkToUrl) links)
+    nextUrl <- correctUrl (Just $ pageUrl currentPage) (linkHref nextLink)
+    pure currentPage {
         pageUrl = nextUrl,
-        pageNumber = 1 + pageNumber cur
+        pageNumber = 1 + pageNumber currentPage
     }
     where
-        linkToUrl link = correctUrl (Just $ pageUrl cur) (linkHref link)
+        linkToUrl link = correctUrl (Just $ pageUrl currentPage) (linkHref link)
         isNonCircular Nothing = False
-        isNonCircular (Just uri) = uri /= (pageUrl cur)
+        isNonCircular (Just uri) = uri /= pageUrl currentPage
 
 panelUrlRule :: Text -> ImageMeta -> Bool
 panelUrlRule substring image = substring `isInfixOf` imageSrc image
@@ -74,7 +74,7 @@ panelAltRule :: Text -> ImageMeta -> Bool
 panelAltRule substring image = any (substring `isInfixOf`) $ imageAltText image
 
 linkRelRule :: LinkMeta -> Bool
-linkRelRule link = any (=="next") $ linkRel link
+linkRelRule link = "next" `elem` linkRel link
 
 linkInnerTextRule :: Text -> LinkMeta -> Bool
-linkInnerTextRule substring link = substring `isInfixOf` (linkInnerText link)
+linkInnerTextRule substring link = substring `isInfixOf` linkInnerText link
