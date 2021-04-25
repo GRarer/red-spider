@@ -51,7 +51,8 @@ data ComicPage = ComicPage {
     panelSelect :: ImageMeta -> Bool,
     -- | The first hyperlink matching this predicate will be followed to find the next page
     nextSelect :: LinkMeta -> Bool,
-    saveTitleText :: Bool
+    saveTitleText :: Bool,
+    ignoreRobotsTxt :: Bool
 }
 
 successorPage :: ComicPage -> [LinkMeta] -> Maybe ComicPage

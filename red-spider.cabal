@@ -3,7 +3,7 @@ cabal-version:       2.4
 -- init'.  For further documentation, see
 -- http://haskell.org/cabal/users-guide/
 name:                red-spider
-version:             0.1.0.0
+version:             0.1.1.0
 synopsis: Tool for downloading webcomics for offline viewing and archiving
 description:
   Red spider is a command-line tool that crawls each page of a webcomic
@@ -25,7 +25,8 @@ executable red-spider
     Page,
     Download,
     Fetch,
-    Options
+    Options,
+    Robots
   -- other-extensions:
   build-depends:
     base ^>=4.14.0.0,
@@ -37,6 +38,7 @@ executable red-spider
     optparse-applicative,
     filepath,
     image-type,
-    safe
+    safe,
+    robots-txt
   hs-source-dirs: src
   default-language:    Haskell2010

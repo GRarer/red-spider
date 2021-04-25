@@ -31,21 +31,23 @@ red-spider --url "ohumanstar.com/comic/chapter-1-title-page/" --panelAlt "Chapte
 
 ## Command-line options
 ```
-red-spider --url URL [-p|--prefix PREFIX] [-n|--number N] [--panelSrc SUBSTRING | --panelAlt SUBSTRING] [--linkText SUBSTRING]
+red-spider --url URL [-p|--prefix PREFIX] [-n|--number N] [--panelSrc SUBSTRING | --panelAlt SUBSTRING] [--linkText SUBSTRING] [-t|--saveTitleText] [--rude]
 ```
 
-- `--url URL`:               URL of first page
+- `--url URL`: URL of first page
 
-- `-p,--prefix PREFIX`:       Prefix label for output file names
+- `-p`,`--prefix PREFIX`: Prefix label for output file names
 
-- `-n,--number N`:            Number to label the first page (default: 1)
+- `-n`,`--number N`: Number to label the first page (default: 1)
 
-- `--panelSrc SUBSTRING`:     Select panel images that have a specific substring in their `src` url (default behavior is to select images with '\comics\' in their url
+- `--panelSrc SUBSTRING`: Select panel images that have a specific substring in their `src` url (default behavior is to select images with '\comics\' in their url
 
-- `--panelAlt SUBSTRING`:     Select panel images that have a specific substring in their `alt` attribute
+- `--panelAlt SUBSTRING`: Select panel images that have a specific substring in their `alt` attribute
 
-- `--linkText SUBSTRING`:     Locate link to next page by looking for a substring within the link's inner text (overrides default behavior of identifying links based on their `rel` attribute)
+- `--linkText SUBSTRING`: Locate link to next page by looking for a substring within the link's inner text (overrides default behavior of identifying links based on their `rel` attribute)
 
-- `-t,--saveTitleText`:       Save title-text for each panel as text files
+- `-t`,`--saveTitleText`: Save title-text for each panel as text files
 
-- `-h,--help`:                Show help text
+- `--rude`: Ignore robots.txt
+
+- `-h`,`--help`: Show help text

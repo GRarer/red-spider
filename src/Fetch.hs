@@ -31,4 +31,3 @@ correctUrl sourcePage url = do
     pure uri'
   where
     httpsScheme = fromJust $ mkScheme "https"
-

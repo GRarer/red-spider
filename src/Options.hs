@@ -80,6 +80,10 @@ parser = ComicPage
             short 't',
             help "Save title-text for each panel as text files"
         ])
+    <*> switch (mconcat [
+            long "rude",
+            help "Ignore robots.txt"
+        ])
 
 parseOptions :: IO ComicPage
 parseOptions = execParser opts
