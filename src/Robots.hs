@@ -6,11 +6,13 @@ module Robots (createRobotRule) where
 import Fetch (getRelative)
 import qualified Data.Text as Text
 import qualified Data.List.NonEmpty as NonEmpty
-import Network.HTTP.Req ( responseBody )
+import Network.HTTP.Req ( responseBody, HttpException (VanillaHttpException), BsResponse)
 import Text.URI
 import Data.Text (Text)
 import Network.HTTP.Robots (Robot, parseRobots, canAccess)
 import Data.Text.Encoding (encodeUtf8)
+import Control.Exception (try)
+import Control.Monad (join)
 
 -- fetches robots.txt and returns a function that evaluates whether crawling a given URL is allowed
 createRobotRule :: URI -> Bool -> IO (URI -> Bool)
@@ -24,9 +26,10 @@ eitherToMaybe = \case
   Left _  -> Nothing
 
 fetchRobot :: URI -> IO (Maybe Robot)
-fetchRobot uri = do
-  result <- getRelative uri "/robots.txt"
-  case result of
+fetchRobot url = do
+  result <- try $ getRelative url "/robots.txt" :: IO (Either HttpException (Maybe BsResponse))
+  let contents = join $ eitherToMaybe result
+  case contents of
     Nothing -> pure Nothing
     Just response -> pure $ eitherToMaybe $ parseRobots $ responseBody response
 
