@@ -20,28 +20,41 @@ import Data.Maybe (listToMaybe, fromMaybe)
 import Data.Foldable (traverse_)
 import System.FilePath ((<.>), (</>))
 import Codec.ImageType (getImageType)
-import Control.Monad (when)
+import Control.Monad (when, void, unless, foldM_)
+import Data.ByteString (ByteString)
+import Page (ImageMeta(ImageMeta))
+import Data.Set (Set, size, insert, empty, member)
+
 
 downloadPage :: ComicPage -> [ImageMeta] -> IO ()
-downloadPage page [singlePanel] = downloadPanel page Nothing singlePanel
-downloadPage page panels = traverse_ downloadNumberedPanel numberedPanels
+downloadPage page [singlePanel] = void $ downloadPanel page empty Nothing singlePanel
+downloadPage page panels = foldM_ downloadNumberedPanel empty panels
     where
-        numberedPanels = zip panels [1..]
-        downloadNumberedPanel (image, number) = downloadPanel page (Just number) image
+        downloadNumberedPanel :: Set ByteString -> ImageMeta -> IO(Set ByteString)
+        downloadNumberedPanel visitedPanels image = do
+            let panelNumber = size visitedPanels + 1
+            panelContents <- downloadPanel page visitedPanels (Just panelNumber) image
+            case panelContents of
+                Just contents -> return (insert contents visitedPanels)
+                Nothing -> return visitedPanels
 
-downloadPanel :: ComicPage -> Maybe Int -> ImageMeta -> IO ()
-downloadPanel page panelNumber imageMeta = do
+downloadPanel :: ComicPage -> Set ByteString -> Maybe Int -> ImageMeta -> IO (Maybe ByteString)
+downloadPanel page pagePanels panelNumber imageMeta = do
     possibleResponse <- getRelative (pageUrl page) (imageSrc imageMeta)
     case possibleResponse of
-        Nothing -> putStrLn "Error: failed to fetch image"
+        Nothing -> do
+            putStrLn "Error: failed to fetch image"
+            return Nothing
         Just imageResponse -> do
             createDirectoryIfMissing True (outputDirectory page)
             let contents = responseBody imageResponse
             let imagePath = getImageFilePath page panelNumber imageMeta contents
-            BS.writeFile imagePath $ responseBody imageResponse
-            when (saveTitleText page) $ do
-                let path = getFileName page panelNumber <.> "txt"
-                traverse_ (Text.writeFile path) $ imageTitleText imageMeta
+            unless (skipDuplicateImage page && member contents pagePanels) $ do
+                BS.writeFile imagePath contents
+                when (saveTitleText page) $ do
+                    let path = getFileName page panelNumber <.> "txt"
+                    traverse_ (Text.writeFile path) $ imageTitleText imageMeta
+            return $ Just contents
 
 lastMaybe :: Foldable f => f a -> Maybe a
 lastMaybe = fmap getLast . foldMap (Just . Last)

@@ -51,6 +51,8 @@ data ComicPage = ComicPage {
     panelSelect :: ImageMeta -> Bool,
     -- | The first hyperlink matching this predicate will be followed to find the next page
     nextSelect :: LinkMeta -> Bool,
+    -- | Skips downloading repeated images *on the same page*
+    skipDuplicateImage:: Bool,
     saveTitleText :: Bool,
     ignoreRobotsTxt :: Bool
 }

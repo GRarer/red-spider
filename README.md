@@ -46,6 +46,8 @@ red-spider --url URL [-p|--prefix PREFIX] [-n|--number N] [--panelSrc SUBSTRING 
 
 - `--linkText SUBSTRING`: Locate link to next page by looking for a substring within the link's inner text (overrides default behavior of identifying links based on their `rel` attribute)
 
+- `--skipDuplicate`: Don't save repeated images on the same page
+
 - `-t`,`--saveTitleText`: Save title-text for each panel as text files
 
 - `--rude`: Ignore robots.txt

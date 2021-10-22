@@ -76,6 +76,10 @@ parser = ComicPage
             pure linkRelRule
         ]
     <*> switch (mconcat [
+            long "skipDuplicate",
+            help "Don't save repeated images on the same page"
+        ])
+    <*> switch (mconcat [
             long "saveTitleText",
             short 't',
             help "Save title-text for each panel as text files"
