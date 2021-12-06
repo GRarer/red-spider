@@ -24,6 +24,7 @@ import Control.Monad (when, void, unless, foldM_)
 import Data.ByteString (ByteString)
 import Page (ImageMeta(ImageMeta))
 import Data.Set (Set, size, insert, empty, member)
+import qualified Data.Text.Encoding as Text
 
 
 downloadPage :: ComicPage -> [ImageMeta] -> IO ()
@@ -53,7 +54,7 @@ downloadPanel page pagePanels panelNumber imageMeta = do
                 BS.writeFile imagePath contents
                 when (saveTitleText page) $ do
                     let path = getFileName page panelNumber <.> "txt"
-                    traverse_ (Text.writeFile path) $ imageTitleText imageMeta
+                    traverse_ (BS.writeFile path . Text.encodeUtf8) $ imageTitleText imageMeta
             return $ Just contents
 
 lastMaybe :: Foldable f => f a -> Maybe a
